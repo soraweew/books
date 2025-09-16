@@ -30,8 +30,13 @@ public class BookController {
     }
 
     @GetMapping("/api/books")
-    public List<Book> getBooks() {
-        return books;
+    public List<Book> getBook(@RequestParam(required = false) String category) {
+
+        if (category == null) return books;
+
+        return books.stream()
+                .filter(book -> book.getCategory().equalsIgnoreCase(category))
+                .toList();
     }
 
     @GetMapping("/api/books/{title}")
@@ -40,12 +45,5 @@ public class BookController {
                 .filter(book -> book.getTitle().equalsIgnoreCase(title))
                 .findFirst()
                 .orElse(null);
-    }
-
-    @GetMapping("/api/books")
-    public List<Book> getBookByCategory(@RequestParam String category) {
-        return books.stream()
-                .filter(book -> book.getCategory().equalsIgnoreCase(category))
-                .toList();
     }
 }
