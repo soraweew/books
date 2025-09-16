@@ -1,10 +1,7 @@
 package dev.soraweew.books.controller;
 
 import dev.soraweew.books.entity.Book;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,5 +42,23 @@ public class BookController {
                 .filter(book -> book.getTitle().equalsIgnoreCase(title))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @PostMapping("/api/books")
+    public void createBook(@RequestBody Book newBook) {
+        boolean isNewBook = books.stream()
+                        .noneMatch(book -> book.getTitle().equalsIgnoreCase(newBook.getTitle()));
+
+        if (isNewBook) books.add(newBook);
+    }
+
+    @PutMapping("/api/books/{title}")
+    public void updateBook(@PathVariable String title, @RequestBody Book updatedBook) {
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).getTitle().equalsIgnoreCase(title)) {
+                books.set(i, updatedBook);
+                return;
+            }
+        }
     }
 }
