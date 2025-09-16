@@ -61,4 +61,9 @@ public class BookController {
             }
         }
     }
+
+    @DeleteMapping("/api/books/{title}")
+    public void deleteBook(@PathVariable String title) {
+        books.removeIf(book -> book.getTitle().equalsIgnoreCase(title));
+    }
 }
