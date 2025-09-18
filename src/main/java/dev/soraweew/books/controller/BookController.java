@@ -1,6 +1,7 @@
 package dev.soraweew.books.controller;
 
 import dev.soraweew.books.entity.Book;
+import dev.soraweew.books.exception.BookNotFoundException;
 import dev.soraweew.books.request.BookRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -56,7 +57,7 @@ public class BookController {
         return books.stream()
                 .filter(book -> book.getId() == id)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new BookNotFoundException("Book not found - " + id));
     }
 
     @Operation(summary = "Create a new book", description = "Add a new book to the list")
@@ -73,15 +74,17 @@ public class BookController {
     @Operation(summary = "Update a book", description = "Update the details of an existing book")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void updateBook(@Parameter(description = "ID of the book to update")
+    public Book updateBook(@Parameter(description = "ID of the book to update")
                            @PathVariable @Min(value = 1) long id, @Valid @RequestBody BookRequest bookRequest) {
         for (int i = 0; i < books.size(); i++) {
             if (books.get(i).getId() == id) {
                 Book updatedBook = convertToBook(id, bookRequest);
                 books.set(i, updatedBook);
-                return;
+                return updatedBook;
             }
         }
+
+        throw new BookNotFoundException("Book not found - " + id);
     }
 
     @Operation(summary = "Delete a book from a list", description = "Remove a book from the list")
@@ -89,6 +92,11 @@ public class BookController {
     @DeleteMapping("/{id}")
     public void deleteBook(@Parameter(description = "ID of the book to delete")
                            @PathVariable @Min(value = 1) long id) {
+        books.stream()
+                .filter(book -> book.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new BookNotFoundException("Book not found - " + id));
+
         books.removeIf(book -> book.getId() == id);
     }
 
